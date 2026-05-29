@@ -1,0 +1,39 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="quickeat"
+version="1.2.0"
+displayName="Quick Eat"
+logoFile="quickeat_icon.png"
+description='''
+Eat food directly from your inventory by hovering over it and pressing G.
+Hold G to eat continuously until full!
+
+Features:
+• Quick eat from inventory and containers (chests, barrels)
+• Hold G to eat multiple items rapidly — no cooldown!
+• Auto-eat: automatically eat when hungry (configurable)
+• Toast notifications with food icon and nutrition info
+• Food particles when eating
+• Combo system — eat the same food for buff rewards!
+• Built-in settings GUI — no extra mods needed!
+• Works with ALL modded food (Farmer's Delight, Pam's, Create, etc.)
+• Thirst support (Legendary Survival Overhaul, Tough As Nails)
+• Compatible with 20+ popular mods
+'''
+
+[[dependencies.quickeat]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.quickeat]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
