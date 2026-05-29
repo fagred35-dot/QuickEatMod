@@ -1,5 +1,6 @@
 package com.quickeat;
 
+import com.quickeat.client.MacroEatHandler;
 import com.quickeat.network.QuickEatNetwork;
 import com.quickeat.network.QuickEatPacket;
 import net.minecraft.ChatFormatting;
@@ -17,28 +18,19 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-/**
- * Client-side event handler for Quick Eat.
- * Supports instant eat on key press AND continuous eating while holding the key.
- * No cooldown — hold G on a stack of bread and eat it all in seconds.
- */
 @Mod.EventBusSubscriber(modid = QuickEatMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ClientEvents {
 
     private static boolean keyHeld = false;
     private static int holdTicks = 0;
-    private static final int EAT_INTERVAL = 3; // ticks between eats while holding (150ms)
+    private static final int EAT_INTERVAL = 3;
 
-    /**
-     * Instant eat on first key press — immediate feedback.
-     */
     @SubscribeEvent
     public static void onKeyPressedInScreen(ScreenEvent.KeyPressed.Pre event) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> containerScreen)) return;
         if (event.getKeyCode() != KeyBindings.QUICK_EAT_KEY.getKey().getValue()) return;
 
-        // Skip if already holding — the tick handler takes over
         if (keyHeld) {
             event.setCanceled(true);
             return;
@@ -51,24 +43,39 @@ public class ClientEvents {
         event.setCanceled(true);
     }
 
-    /**
-     * Continuous eating while holding the key — tick-based for consistent speed.
-     */
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
+        Minecraft mc = Minecraft.getInstance();
+        
+        // Handle in-game hotkeys
+        if (mc.player != null) {
+            while (KeyBindings.TOGGLE_AUTO_EAT_KEY.consumeClick()) {
+                boolean current = QuickEatConfig.AUTO_EAT_ENABLED.get();
+                QuickEatConfig.AUTO_EAT_ENABLED.set(!current);
+                QuickEatConfig.AUTO_EAT_ENABLED.save();
+                
+                Component msg = Component.translatable(!current ? "options.on" : "options.off")
+                    .withStyle(!current ? ChatFormatting.GREEN : ChatFormatting.RED);
+                mc.player.displayClientMessage(Component.literal("Auto-Eat: ").append(msg), true);
+            }
+
+            while (KeyBindings.QUICK_EAT_KEY.consumeClick()) {
+                if (mc.screen == null) {
+                    MacroEatHandler.startEating(true);
+                }
+            }
+        }
+
+        // GUI Hold handling
         if (!keyHeld) return;
 
-        Minecraft mc = Minecraft.getInstance();
-
-        // Reset if inventory closed
         if (!(mc.screen instanceof AbstractContainerScreen<?> containerScreen)) {
             keyHeld = false;
             holdTicks = 0;
             return;
         }
 
-        // Check if key is actually still held (direct GLFW state)
         int keyValue = KeyBindings.QUICK_EAT_KEY.getKey().getValue();
         if (!InputConstants.isKeyDown(mc.getWindow().getWindow(), keyValue)) {
             keyHeld = false;
@@ -83,9 +90,6 @@ public class ClientEvents {
         }
     }
 
-    /**
-     * Attempt to eat the food under the cursor.
-     */
     private static void tryEat(Minecraft mc, AbstractContainerScreen<?> containerScreen) {
         Slot hoveredSlot = containerScreen.getSlotUnderMouse();
         if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
@@ -93,7 +97,6 @@ public class ClientEvents {
         ItemStack stack = hoveredSlot.getItem();
         if (!QuickEatPacket.isConsumable(stack)) return;
 
-        // Prevent eating when full (client-side hint, server validates too)
         if (QuickEatConfig.COMMON_SPEC.isLoaded() && QuickEatConfig.PREVENT_WHEN_FULL.get()) {
             if (mc.player != null && mc.player.getFoodData().getFoodLevel() >= 20) return;
         }
@@ -104,20 +107,15 @@ public class ClientEvents {
             return;
         }
 
-        // Send eat packet to server
         int containerSlotId = hoveredSlot.index;
         QuickEatNetwork.CHANNEL.sendToServer(new QuickEatPacket(containerSlotId, !isPlayerInventory));
 
-        // Immediate client-side sound feedback
         if (QuickEatConfig.CLIENT_SPEC.isLoaded() && QuickEatConfig.PLAY_SOUND.get()) {
             mc.player.playSound(SoundEvents.GENERIC_EAT, 0.5F,
                     mc.level.random.nextFloat() * 0.1F + 0.9F);
         }
     }
 
-    /**
-     * Show tooltip hint on food items.
-     */
     @SubscribeEvent
     public static void onItemTooltip(ItemTooltipEvent event) {
         if (!QuickEatConfig.CLIENT_SPEC.isLoaded() || !QuickEatConfig.SHOW_TOOLTIP.get()) return;

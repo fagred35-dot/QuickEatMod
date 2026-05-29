@@ -18,8 +18,16 @@ public class KeyBindings {
             "key.categories.quickeat"
     );
 
+    public static final KeyMapping TOGGLE_AUTO_EAT_KEY = new KeyMapping(
+            "key.quickeat.toggle",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_H,
+            "key.categories.quickeat"
+    );
+
     @SubscribeEvent
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(QUICK_EAT_KEY);
+        event.register(TOGGLE_AUTO_EAT_KEY);
     }
 }

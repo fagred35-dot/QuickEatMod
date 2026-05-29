@@ -27,7 +27,8 @@ public class QuickEatConfigScreen extends Screen {
     private static final String[] TAB_KEYS = {
             "quickeat.config.category.general",
             "quickeat.config.category.autoeat",
-            "quickeat.config.category.combo"
+            "quickeat.config.category.combo",
+            "quickeat.config.category.blacklist"
     };
 
     /**
@@ -55,7 +56,7 @@ public class QuickEatConfigScreen extends Screen {
         int tabY = 32;
 
         // === Tab buttons ===
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             final int tabIdx = i;
             addRenderableWidget(Button.builder(tabLabel(i), b -> switchTab(tabIdx))
                     .bounds(cx - tabW * 3 / 2 - 2 + i * (tabW + 2), tabY, tabW, 20)
@@ -103,6 +104,15 @@ public class QuickEatConfigScreen extends Screen {
                 addSlider(lx, y, "quickeat.config.comboMinReward", 2, 20, QuickEatConfig.COMBO_MIN_FOR_REWARD);
                 y += ROW_H;
                 addToggle(lx, y, "quickeat.config.comboShowMessage", QuickEatConfig.COMBO_SHOW_MESSAGE);
+            }
+            case 3 -> { // Blacklist
+                // We display it as a text field or simple button
+                addRenderableWidget(Button.builder(Component.translatable("quickeat.config.edit_blacklist"), b -> {
+                    // For now we just use a generic warning or link, as complex lists need a whole subscreen.
+                    // But we can simply open a text input sub-screen or use Forge's default config GUI for it
+                    // Actually, let's just make it a big text field!
+                    this.minecraft.setScreen(new BlacklistEditScreen(this));
+                }).bounds(lx, y, OPT_W, 20).build());
             }
         }
 

@@ -36,6 +36,9 @@ public class QuickEatConfig {
     public static final ForgeConfigSpec.IntValue COMBO_MIN_FOR_REWARD;
     public static final ForgeConfigSpec.BooleanValue COMBO_SHOW_MESSAGE;
 
+    // Blacklist
+    public static final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> BLACKLIST;
+
     static {
         // === CLIENT CONFIG ===
         CLIENT_BUILDER.comment("Quick Eat - Client Settings").push("client");
@@ -105,6 +108,14 @@ public class QuickEatConfig {
         COMBO_SHOW_MESSAGE = COMMON_BUILDER
                 .comment("Show combo count message in action bar")
                 .define("showMessage", true);
+
+        COMMON_BUILDER.pop();
+
+        COMMON_BUILDER.comment("Blacklist Settings").push("blacklist");
+
+        BLACKLIST = COMMON_BUILDER
+                .comment("List of item IDs (e.g. minecraft:rotten_flesh, minecraft:golden_apple) that should NEVER be auto-eaten")
+                .defineList("items", java.util.Arrays.asList("minecraft:rotten_flesh", "minecraft:spider_eye", "minecraft:pufferfish"), o -> o instanceof String);
 
         COMMON_BUILDER.pop();
         COMMON_SPEC = COMMON_BUILDER.build();
