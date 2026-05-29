@@ -16,6 +16,7 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = QuickEatMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -41,6 +42,17 @@ public class ClientEvents {
 
         tryEat(mc, containerScreen);
         event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerRightClickItem(PlayerInteractEvent.RightClickItem event) {
+        if (!QuickEatConfig.COMMON_SPEC.isLoaded() || !QuickEatConfig.PREVENT_WHEN_FULL.get()) return;
+        
+        ItemStack stack = event.getItemStack();
+        if (QuickEatPacket.isConsumable(stack) && event.getEntity().getFoodData().getFoodLevel() >= 20) {
+            // Prevent eating anything (including golden apples) if we are full and the setting is on
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent

@@ -25,6 +25,7 @@ public class MacroEatHandler {
     
     private static int eatTicks = 0;
     private static boolean manualTrigger = false;
+    private static boolean hasStartedEating = false;
 
     public static void startEating(boolean isManual) {
         if (currentState != State.IDLE) return;
@@ -100,6 +101,7 @@ public class MacroEatHandler {
 
                 currentState = State.EATING;
                 eatTicks = 0;
+                hasStartedEating = false;
                 break;
 
             case EATING:
@@ -107,9 +109,16 @@ public class MacroEatHandler {
                 mc.options.keyUse.setDown(true); // Simulate holding right click
                 
                 ItemStack usingItem = player.getUseItem();
-                if (eatTicks > 10 && usingItem.isEmpty()) {
-                    // Finished eating
+                boolean isUsing = !usingItem.isEmpty();
+                
+                if (isUsing) {
+                    hasStartedEating = true;
+                }
+                
+                if (eatTicks > 50 || (hasStartedEating && !isUsing)) {
+                    // Finished eating or timed out
                     mc.options.keyUse.setDown(false);
+                    hasStartedEating = false;
                     
                     if (manualTrigger && player.getFoodData().getFoodLevel() < 20) {
                         // Keep eating if manual trigger and not full
