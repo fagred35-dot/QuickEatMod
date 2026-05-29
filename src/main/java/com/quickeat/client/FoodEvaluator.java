@@ -15,7 +15,7 @@ import java.util.List;
 
 public class FoodEvaluator {
 
-    public static int findBestFoodSlot(LocalPlayer player, boolean requirePanic) {
+    public static int findBestFoodSlot(LocalPlayer player, boolean requirePanic, boolean isAutoEat) {
         int bestSlot = -1;
         int bestScore = -1;
 
@@ -34,6 +34,10 @@ public class FoodEvaluator {
             
             // Allow drinks/potions if they are consumable but don't have food properties
             int nutrition = food != null ? food.getNutrition() : 0;
+            
+            // If it's an automated auto-eat to restore hunger, ignore 0-nutrition items (like potions) 
+            // to prevent endless eating loops!
+            if (isAutoEat && nutrition == 0) continue;
             
             // Exclude poison/harmful food unless it's a panic and it's our only choice
             if (isHarmful(food) && !requirePanic) continue;

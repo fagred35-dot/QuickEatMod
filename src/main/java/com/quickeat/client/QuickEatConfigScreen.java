@@ -22,6 +22,7 @@ public class QuickEatConfigScreen extends Screen {
     private final Screen parent;
     private int tab = 0;
 
+    private static final net.minecraft.resources.ResourceLocation GUI_ICONS_LOCATION = new net.minecraft.resources.ResourceLocation("minecraft", "textures/gui/icons.png");
     private static final int ROW_H = 24;
     private static final int OPT_W = 310;
     private static final String[] TAB_KEYS = {
@@ -192,6 +193,25 @@ public class QuickEatConfigScreen extends Screen {
             .append(Component.literal(" ✦").withStyle(ChatFormatting.GOLD)), cx, 28, 0xFFFFFF);
             
         super.render(gfx, mouseX, mouseY, partialTick);
+
+        if (tab == 1) { // Auto-Eat
+            int threshold = QuickEatConfig.AUTO_EAT_THRESHOLD.get();
+            int drawX = lx + (OPT_W / 2) - (10 * 8 / 2);
+            int drawY = 135;
+            
+            gfx.drawCenteredString(this.font, Component.literal("Visual Threshold (Drumsticks):").withStyle(ChatFormatting.GRAY), cx, drawY - 12, 0xA0A0A0);
+            for (int i = 0; i < 10; ++i) {
+                int bgX = drawX + i * 8;
+                // Empty background
+                gfx.blit(GUI_ICONS_LOCATION, bgX, drawY, 16, 27, 9, 9);
+                
+                if (i * 2 + 1 < threshold) {
+                    gfx.blit(GUI_ICONS_LOCATION, bgX, drawY, 52, 27, 9, 9); // Full
+                } else if (i * 2 + 1 == threshold) {
+                    gfx.blit(GUI_ICONS_LOCATION, bgX, drawY, 61, 27, 9, 9); // Half
+                }
+            }
+        }
     }
 
     @Override

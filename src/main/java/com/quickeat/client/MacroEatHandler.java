@@ -79,7 +79,7 @@ public class MacroEatHandler {
 
             case PREPARING:
                 boolean isPanic = player.getHealth() <= 6.0f; // 3 hearts
-                int bestSlot = FoodEvaluator.findBestFoodSlot(player, isPanic);
+                int bestSlot = FoodEvaluator.findBestFoodSlot(player, isPanic, !manualTrigger);
                 
                 if (bestSlot == -1) {
                     currentState = State.IDLE; // No food found
