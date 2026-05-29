@@ -1,5 +1,7 @@
 package com.quickeat.client;
 
+import net.minecraft.ChatFormatting;
+
 import com.quickeat.QuickEatConfig;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -24,7 +26,7 @@ public class BlacklistEditScreen extends Screen {
     @Override
     protected void init() {
         int cx = this.width / 2;
-        int y = 50;
+        int y = 70;
 
         List<? extends String> currentList = QuickEatConfig.BLACKLIST.get();
         String currentText = String.join(", ", currentList);
@@ -58,8 +60,25 @@ public class BlacklistEditScreen extends Screen {
     @Override
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         renderBackground(gfx);
-        gfx.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
-        gfx.drawCenteredString(this.font, Component.literal("Enter item IDs separated by commas:"), this.width / 2, 35, 0xA0A0A0);
+        
+        int cx = this.width / 2;
+        int boxW = 350;
+        int boxH = 100;
+        int lx = cx - boxW / 2;
+        int ty = 30;
+
+        // Premium Dark Panel with Orange/Gold Gradient Borders
+        gfx.fillGradient(lx, ty, lx + boxW, ty + boxH, 0xEE050505, 0xDD111111);
+        gfx.fillGradient(lx - 1, ty - 1, lx + boxW + 1, ty, 0xFFFFAA00, 0xFFFF5500);
+        gfx.fillGradient(lx - 1, ty + boxH, lx + boxW + 1, ty + boxH + 1, 0xFFFF5500, 0xFFFFAA00);
+        gfx.fillGradient(lx - 1, ty, lx, ty + boxH, 0xFFFFAA00, 0xFFFF5500);
+        gfx.fillGradient(lx + boxW, ty, lx + boxW + 1, ty + boxH, 0xFFFF5500, 0xFFFFAA00);
+
+        gfx.drawCenteredString(this.font, Component.literal("✦ ").withStyle(ChatFormatting.GOLD)
+            .append(this.title.copy().withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD))
+            .append(Component.literal(" ✦").withStyle(ChatFormatting.GOLD)), cx, 40, 0xFFFFFF);
+            
+        gfx.drawCenteredString(this.font, Component.literal("Enter item IDs separated by commas").withStyle(ChatFormatting.GRAY), cx, 55, 0xA0A0A0);
         super.render(gfx, mouseX, mouseY, partialTick);
     }
 }

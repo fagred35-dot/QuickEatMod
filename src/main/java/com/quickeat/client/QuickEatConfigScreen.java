@@ -52,19 +52,19 @@ public class QuickEatConfigScreen extends Screen {
     protected void init() {
         int cx = this.width / 2;
         int lx = cx - OPT_W / 2;
-        int tabW = 90;
-        int tabY = 32;
+        int tabW = 80;
+        int tabY = 45;
 
         // === Tab buttons ===
         for (int i = 0; i < 4; i++) {
             final int tabIdx = i;
             addRenderableWidget(Button.builder(tabLabel(i), b -> switchTab(tabIdx))
-                    .bounds(cx - tabW * 3 / 2 - 2 + i * (tabW + 2), tabY, tabW, 20)
+                    .bounds(cx - (tabW * 2) + (i * tabW), tabY, tabW, 20)
                     .build());
         }
 
         // === Options for current tab ===
-        int y = 60;
+        int y = 75;
 
         switch (tab) {
             case 0 -> { // General
@@ -124,9 +124,9 @@ public class QuickEatConfigScreen extends Screen {
     private Component tabLabel(int idx) {
         Component text = Component.translatable(TAB_KEYS[idx]);
         if (tab == idx) {
-            return text.copy().withStyle(ChatFormatting.UNDERLINE, ChatFormatting.WHITE);
+            return text.copy().withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
         }
-        return text;
+        return text.copy().withStyle(ChatFormatting.GRAY);
     }
 
     private void switchTab(int t) {
@@ -172,7 +172,25 @@ public class QuickEatConfigScreen extends Screen {
     @Override
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         renderBackground(gfx);
-        gfx.drawCenteredString(this.font, this.title, this.width / 2, 13, 0xFFFFFF);
+        
+        int cx = this.width / 2;
+        int boxW = 350;
+        int boxH = this.height - 50;
+        int lx = cx - boxW / 2;
+        int ty = 20;
+
+        // Premium Dark Panel with Orange/Gold Gradient Borders
+        gfx.fillGradient(lx, ty, lx + boxW, ty + boxH, 0xEE050505, 0xDD111111);
+        gfx.fillGradient(lx - 1, ty - 1, lx + boxW + 1, ty, 0xFFFFAA00, 0xFFFF5500); // Top border
+        gfx.fillGradient(lx - 1, ty + boxH, lx + boxW + 1, ty + boxH + 1, 0xFFFF5500, 0xFFFFAA00); // Bottom border
+        gfx.fillGradient(lx - 1, ty, lx, ty + boxH, 0xFFFFAA00, 0xFFFF5500); // Left border
+        gfx.fillGradient(lx + boxW, ty, lx + boxW + 1, ty + boxH, 0xFFFF5500, 0xFFFFAA00); // Right border
+
+        // Elegant Title
+        gfx.drawCenteredString(this.font, Component.literal("✦ ").withStyle(ChatFormatting.GOLD)
+            .append(this.title.copy().withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD))
+            .append(Component.literal(" ✦").withStyle(ChatFormatting.GOLD)), cx, 28, 0xFFFFFF);
+            
         super.render(gfx, mouseX, mouseY, partialTick);
     }
 

@@ -36,6 +36,8 @@ public class MacroEatHandler {
         if (mc.player.getFoodData().getFoodLevel() >= 20 && !isManual) return; // Full
 
         manualTrigger = isManual;
+        originalSelectedSlot = mc.player.getInventory().selected;
+        swappedInventorySlot = -1;
         currentState = State.PREPARING;
     }
     
@@ -84,9 +86,6 @@ public class MacroEatHandler {
                     return;
                 }
 
-                originalSelectedSlot = player.getInventory().selected;
-                swappedInventorySlot = -1;
-
                 if (bestSlot < 9) { // It's in the hotbar
                     player.getInventory().selected = bestSlot;
                 } else if (bestSlot == 40) { // Offhand
@@ -131,7 +130,11 @@ public class MacroEatHandler {
                     swappedInventorySlot = -1;
                 }
                 
-                player.getInventory().selected = originalSelectedSlot;
+                if (originalSelectedSlot != -1) {
+                    player.getInventory().selected = originalSelectedSlot;
+                }
+                
+                originalSelectedSlot = -1;
                 currentState = State.IDLE;
                 manualTrigger = false;
                 break;
